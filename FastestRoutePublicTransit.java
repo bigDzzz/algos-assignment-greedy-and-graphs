@@ -1,6 +1,6 @@
 /**
  * Public Transit
- * Author: Your Name and Carolyn Yao
+ * Author: FengYu Zhang and Carolyn Yao
  * Does this compile? Y/N
  */
 
@@ -24,7 +24,7 @@ public class FastestRoutePublicTransit {
    * @param freq freq[u][v] How frequently is the train that stops at u on its way to v
    * @return shortest travel time between S and T
    */
-  public int myShortestTravelTime(
+  public int[] myShortestTravelTime(
     int S,
     int T,
     int startTime,
@@ -34,7 +34,75 @@ public class FastestRoutePublicTransit {
   ) {
     // Your code along with comments here. Feel free to borrow code from any
     // of the existing method. You can also make new helper methods.
-    return 0;
+	  
+	  //okay
+	    int numVertices = lengths[0].length;
+	   
+	    // This is the array where we'll store all the final shortest times
+	    int[] shortestTravelTimes = new int[numVertices];
+
+	    // processed[i] will true if vertex i's shortest time is already finalized
+	    Boolean[] processed = new Boolean[numVertices];
+
+	    // Initialize all distances as INFINITE and processed[] as false
+	    for (int v = 0; v < numVertices; v++) {
+	    	shortestTravelTimes[v] = Integer.MAX_VALUE;
+	    	processed[v] = false;
+	    }
+
+	    // Distance of source vertex from itself is always 0
+	    shortestTravelTimes[S] = 0;
+
+	    // Find shortest path to all the vertices
+	    for (int count = 0; count < numVertices - 1 ; count++) {
+	      // Pick the minimum distance vertex from the set of vertices not yet processed.
+	      // u is always equal to source in first iteration.
+	      // Mark u as processed.
+	      int u = findNextToProcess(shortestTravelTimes, processed);
+
+	      processed[u] = true;
+
+	      // Update time value of all the adjacent vertices of the picked vertex.
+	      for (int v = 0; v < numVertices; v++) {
+	        // Update time[v] only if is not processed yet, there is an edge from u to v,
+	        // and total weight of path from source to v through u is smaller than current value of time[v]
+	        if (!processed[v] && lengths[u][v]!=0 && shortestTravelTimes[u] != Integer.MAX_VALUE) {
+	        	
+	        	int waitingT = waitingTime(startTime,shortestTravelTimes,u,first,freq,v);
+	        	
+	        	if( shortestTravelTimes[u]+ lengths[u][v] + waitingT< shortestTravelTimes[v]) {
+	        		shortestTravelTimes[v] = shortestTravelTimes[u] + lengths[u][v] + waitingT;
+	    		}
+	        }
+	      }
+	      if(processed[T] == true)	break;
+	    }
+
+	    printShortestTimes(shortestTravelTimes);
+	    
+    return shortestTravelTimes;
+  }
+
+  //helper function: getting the waiting time at a station(destStation)
+  public int waitingTime(int startTime, int times[],int u,int first[][], int freq[][],int v) {
+	
+	  //waiting time only depends on two cases:
+	  //		i)when we arrived the station the train is there so we don't need to wait at all; waiting time = 0
+	  //		ii)when we arrived the station the train is not there, so we need to wait for upcoming train; calculate the time
+	int waitingTime = 0;
+  	int arrivalTime = times[u] + startTime;
+  	
+  	if(first[u][v] >= arrivalTime) waitingTime = first[u][v] - arrivalTime;
+  	
+  	else{
+  		if((arrivalTime - first[u][v])% freq[u][v] == 0){
+  			waitingTime = 0;
+  		}
+  		else{
+  		waitingTime = freq[u][v] - (arrivalTime - first[u][v])% freq[u][v];
+  		}
+  	}
+	  return waitingTime;
   }
 
   /**
@@ -109,6 +177,8 @@ public class FastestRoutePublicTransit {
   }
 
   public static void main (String[] args) {
+	  
+	 
     /* length(e) */
     int lengthTimeGraph[][] = new int[][]{
       {0, 4, 0, 0, 0, 0, 0, 8, 0},
@@ -122,8 +192,35 @@ public class FastestRoutePublicTransit {
       {0, 0, 2, 0, 0, 0, 6, 7, 0}
     };
     FastestRoutePublicTransit t = new FastestRoutePublicTransit();
-    t.shortestTime(lengthTimeGraph, 0);
+   // t.shortestTime(lengthTimeGraph, 0);
+   
 
     // You can create a test case for your implemented method for extra credit below
-  }
+    
+    int[][] lengths = new int[][]{ 
+ 	   {0,10,32,0},
+ 	   {10,0,0,1},
+ 	   {32,0,0,6},
+ 	   {0,1,6,0}
+    };
+    
+    
+    int[][] first = new int[][]{ 
+ 	   {0,5,4,0},
+ 	   {5,0,0,2},
+ 	   {4,0,0,3},
+ 	   {0,2,3,0}
+    };
+    
+    int[][] freq = new int[][]{ 
+ 	   {0,4,8,0},
+ 	   {4,0,0,2},
+ 	   {8,0,0,8},
+ 	   {0,2,8,0}
+    };
+    
+    t.myShortestTravelTime(0, 3, 5, lengths, first, freq);
+    
+     
+   }
 }

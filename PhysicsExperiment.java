@@ -1,7 +1,7 @@
 /**
  * Physics Experiment
- * Author: Your Name and Carolyn Yao
- * Does this compile or finish running within 5 seconds? Y/N
+ * Author: FengYu Zhang and Carolyn Yao
+ * Does this compile or finish running within 5 seconds? Yes
  */
 
 /**
@@ -38,6 +38,46 @@ public class PhysicsExperiment {
     int[][] scheduleTable = new int[numStudents + 1][numSteps + 1];
 
     // Your code goes here
+	int exprToDo = 1;//update after found what expriments are Done
+	int currExprStrt = 1;
+	int currExprEnd = 0;
+
+	while(exprToDo<=numSteps){
+	  int goodStud = 0;
+	  int maxCount = 0;//update after found the student who will do the expr
+
+	  for(int stud = 1; stud<=numStudents; stud++){
+
+		  int currCount = 0;//update after start to check each student
+
+		  for(int expr = exprToDo ; expr<= numSteps; expr++){
+
+			  if(signUpTable[stud][expr]==0) break;
+
+			  else{
+
+				  currCount++;
+
+			  }
+	    }//end second for
+
+		  if(currCount > maxCount){
+	      maxCount = currCount;
+	      goodStud = stud;
+
+		  }
+
+	  }//end first for
+
+
+	  exprToDo = exprToDo + maxCount;
+	  currExprEnd = currExprEnd + maxCount;
+
+	  for(int i = currExprStrt; i <= currExprEnd; i++) {
+		  scheduleTable[goodStud][i] = signUpTable[goodStud][i];
+	  }
+	  currExprStrt = currExprEnd+1;
+	}//end while
 
     return scheduleTable;
   }
